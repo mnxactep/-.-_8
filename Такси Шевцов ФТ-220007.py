@@ -1,45 +1,43 @@
-def taxi_sort(N, distances, tariffs):
-    sorted_taxis = sorted(range(N), key=lambda x: tariffs[x])
-    total_cost = 0
-    for i in range(N):
-        total_cost += distances[i] * tariffs[sorted_taxis[i]]
-    return sorted_taxis, total_cost
+from itertools import permutations
 
-def num2word(n, words):
-    if n % 100 in (11, 12, 13, 14):
-        return words[2]
-    if n % 10 == 1:
-        return words[0]
-    if n % 10 in (2, 3, 4):
-        return words[1]
-    return words[2]
-
-def main():
+while True:
     try:
-        N = int(input("Введите количество сотрудников компании: "))
+        N = int(input("Введите количество сотрудников: "))
         if N <= 0:
-            print("Количество сотрудников должно быть больше нуля")
-            return
-
-        distances = list(map(int, input("Введите расстояния от работы до домов: ").split()))
-        if len(distances) != N:
-            print("Количество расстояний должно соответствовать количеству сотрудников")
-            return
-
-        tariffs = list(map(int, input("Введите тарифы за проезд одного километра в такси: ").split()))
-        if len(tariffs) != N:
-            print("Количество тарифов должно соответствовать количеству сотрудников")
-            return
-
-        sorted_taxis, total_cost = taxi_sort(N, distances, tariffs)
-
-        print("Номера такси для сотрудников:", sorted_taxis)
-        print("Сумма в рублях:", total_cost)
-
-        rubles_words = ["рубль", "рубля", "рублей"]
-        print("Сумма словами:", total_cost, num2word(total_cost, rubles_words))
+            raise ValueError
+        break
     except ValueError:
-        print("Ошибка ввода. Введите целые числа.")
+        print("Количество сотрудников должно быть целым положительным числом")
 
-if __name__ == "__main__":
-    main()
+while True:
+    try:
+        distances = list(map(int, input(f"Введите расстояния до домов для каждого из {N} сотрудников: ").split()))
+        if len(distances) != N or any(d < 0 for d in distances):
+            raise ValueError
+        break
+    except ValueError:
+        print(f"Введите {N} положительных чисел, разделенных пробелом")
+
+while True:
+    try:
+        tariffs = list(map(int, input(f"Введите тарифы за проезд для каждого из {N} такси: ").split()))
+        if len(tariffs) != N or any(t < 0 for t in tariffs):
+            raise ValueError
+        break
+    except ValueError:
+        print(f"Введите {N} положительных чисел, разделенных пробелом")
+
+min_cost = float('inf')
+min_permutation = []
+
+for permutation in permutations(range(N)):
+    cost = sum(distances[i] * tariffs[permutation[i]] for i in range(N))
+    if cost < min_cost:
+        min_cost = cost
+        min_permutation = permutation
+
+print("Оптимальное распределение такси для сотрудников:")
+for i, p in enumerate(min_permutation):
+    print(f"Сотрудник {i+1} должен ехать на такси {p+1}")
+
+print(f"Общая стоимость: {min_cost} Рубля" if min_cost == 1 else f"Общая стоимость: {min_cost} Рублей")
